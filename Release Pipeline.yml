@@ -23,12 +23,10 @@ steps:
     msbuildArgs: '/p:Configuration=$(buildConfiguration)'
     configuration: '$(buildConfiguration)'
 
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'pack'
-    packagesToPack: '$(projectPath)'
-    configuration: '$(buildConfiguration)'
-    outputDir: '$(outputDir)'
+- script: |
+    curl -L -o nuget.exe https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
+    mono nuget.exe pack $(projectPath) -OutputDirectory $(outputDir) -Properties Configuration=$(buildConfiguration)
+  displayName: 'Pack NuGet Package'
 
 - task: PublishBuildArtifacts@1
   inputs:
