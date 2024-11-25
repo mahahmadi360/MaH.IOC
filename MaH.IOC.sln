@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		Build Pipeline.yml = Build Pipeline.yml
 		README.md = README.md
+		Release Pipeline.yml = Release Pipeline.yml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{F9AF1A89-411F-4AF8-8E9C-551232F5CB2C}"

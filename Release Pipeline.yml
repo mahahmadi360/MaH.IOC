@@ -1,0 +1,36 @@
+trigger:
+- none
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  projectPath: 'src/MaH.IOC/MaH.IOC.csproj'  # Update with the path to your .csproj file
+  outputDir: '$(Build.ArtifactStagingDirectory)/nuget'
+
+steps:
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(projectPath)'
+
+- task: VSBuild@1
+  inputs:
+    solution: '$(projectPath)'
+    msbuildArgs: '/p:Configuration=$(buildConfiguration)'
+    configuration: '$(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'pack'
+    packagesToPack: '$(projectPath)'
+    configuration: '$(buildConfiguration)'
+    outputDir: '$(outputDir)'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(outputDir)'
+    ArtifactName: 'nuget'
+    publishLocation: 'Container'
