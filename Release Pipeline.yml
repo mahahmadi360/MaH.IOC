@@ -6,6 +6,7 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
+  solution: '**/*.sln'
   projectPath: 'src/MaH.IOC/MaH.IOC.csproj'  # Update with the path to your .csproj file
   outputDir: '$(Build.ArtifactStagingDirectory)/nuget'
 
@@ -14,7 +15,7 @@ steps:
 
 - task: NuGetCommand@2
   inputs:
-    restoreSolution: '$(projectPath)'
+    restoreSolution: '$(solution)'
 
 - task: VSBuild@1
   inputs:
