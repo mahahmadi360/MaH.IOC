@@ -1,0 +1,68 @@
+trigger:
+- none
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  solution: '**/*.sln'
+  outputDir: '$(Build.ArtifactStagingDirectory)/nuget'
+
+name: '$(Year:yyyy).$(Month).$(DayOfMonth)$(Rev:.r)_$(releaseVersion)'
+
+strategy:
+  matrix:
+    IOC:
+      projectPath: 'src/MaH.IOC/MaH.IOC.csproj'
+      nugetPack: 'MaH.IOC.$(releaseVersion).nupkg'
+    IOCWeb:
+      projectPath: 'src/MaH.IOC.Web/MaH.IOC.Web.csproj'
+      nugetPack: 'MaH.IOC.Web.$(releaseVersion).nupkg'
+    IOCMVC:
+      projectPath: 'src/MaH.IOC.Web.Api/MaH.IOC.Web.Api.csproj'
+      nugetPack: 'MaH.IOC.Web.Api.$(releaseVersion).nupkg'
+    IOCAPI:
+      projectPath: 'src/MaH.IOC.Web.MVC/MaH.IOC.Web.MVC.csproj'
+      nugetPack: 'MaH.IOC.Web.MVC.$(releaseVersion).nupkg'
+    IOCWebForm:
+      projectPath: 'src/MaH.IOC.Web.Forms/MaH.IOC.Web.Forms.csproj'
+      nugetPack: 'MaH.IOC.Web.Forms.$(releaseVersion).nupkg'
+
+steps:
+- task: PowerShell@2
+  displayName: "Check Version number"
+  inputs:
+    targetType: 'inline'
+    script: |
+      if (-not $env:releaseVersion) {
+        Write-Host "##vso[task.logissue type=error]Required variable 'releaseVersion' is not set."
+        Write-Host "##vso[task.complete result=Failed;]DONE"
+        exit 1
+      }
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(solution)'
+
+- task: VSBuild@1
+  inputs:
+    solution: '$(projectPath)'
+    msbuildArgs: '/p:Configuration=$(buildConfiguration) /p:Version=$(releaseVersion)'
+    configuration: '$(buildConfiguration)'
+
+- script: |
+    curl -L -o nuget.exe https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
+    .\nuget.exe pack $(projectPath) -OutputDirectory $(outputDir) -Version $(releaseVersion) -Properties Configuration=$(buildConfiguration)
+  displayName: 'Pack NuGet Package'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(outputDir)'
+    ArtifactName: 'nuget'
+    publishLocation: 'Container'
+
+- script: |
+    dotnet nuget push $(outputDir)/$(nugetPack) --source "https://nuget.pkg.github.com/mahahmadi360/index.json" --api-key $(gitHubToken)
+  displayName: "Push nuget package"
