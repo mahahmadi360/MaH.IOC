@@ -10,6 +10,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BF63B688-D4A6-4E56-A6FB-A140C0A1CCF4}"
 	ProjectSection(SolutionItems) = preProject
 		Build Pipeline.yml = Build Pipeline.yml
+		nuget.config = nuget.config
 		README.md = README.md
 		Release Pipeline.yml = Release Pipeline.yml
 	EndProjectSection
